@@ -63,14 +63,25 @@ if [ ! -f "$userConfFinalPath" ]; then
         log "FATAL: No users provided!"
         exit 3
     fi
+fi
 
-    # Generate unique ssh keys for this container, if needed
-    if [ ! -f /etc/ssh/ssh_host_ed25519_key ]; then
-        ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
-    fi
-    if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
-        ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N ''
-    fi
+# Copy host keys from /etc/sftp directory if they exist
+if [ -f /etc/sftp/ssh_host_ed25519_key ]; then
+    cp -f /etc/sftp/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
+    chmod 0600 /etc/ssh/ssh_host_ed25519_key
+fi
+
+if [ -f /etc/sftp/ssh_host_rsa_key ]; then
+    cp -f /etc/sftp/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
+    chmod 0600 /etc/ssh/ssh_host_rsa_key
+fi
+
+# Generate unique ssh keys for this container, if needed
+if [ ! -f /etc/ssh/ssh_host_ed25519_key ]; then
+    ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
+fi
+if [ ! -f /etc/ssh/ssh_host_rsa_key ]; then
+    ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N ''
 fi
 
 # Source custom scripts, if any
